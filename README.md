@@ -172,3 +172,32 @@ python -m pip install -r requirements.txt
 python -m unittest discover -s tests -v
 python -m rag_copilot.cli --data data/demo ask "What is the late submission penalty?"
 ```
+
+
+## Product documentation
+
+The product-level design is documented in [`PRODUCT_DOCUMENTATION.md`](PRODUCT_DOCUMENTATION.md). It defines the personas, inputs, outputs, high-level architecture, business and technical choices, targeted metrics, reached metrics, responsible-use boundary, and future product path.
+
+The data and evaluation explainers are also committed:
+
+- [`data/README.md`](data/README.md): corpus purpose, sources, processing, checksums, reproducibility, and data limitations.
+- [`evaluation/README.md`](evaluation/README.md): question-set design, metric definitions, reproduction commands, and evaluation limitations.
+
+### Architecture at a glance
+
+```mermaid
+flowchart LR
+    A[Student question] --> D[TF-IDF-style retrieval]
+    B[TXT/PDF corpus] --> C[Loader and page-aware chunking]
+    C --> D
+    D --> E{Evidence threshold}
+    E -->|Sufficient evidence| F[Extractive answer or optional LLM]
+    E -->|Insufficient evidence| G[Explicit abstention]
+    F --> H[Answer plus citations and scores]
+    G --> H
+    H --> I[Structured JSON output]
+```
+
+### Current evaluation result
+
+The committed 50-question evaluation contains 48 answerable questions and 2 deliberately unsupported questions. The current run reports a **91.67% citation hit rate** and **100% abstention recall**. These are retrieval and refusal indicators, not a human-rated answer-quality study or a production accuracy guarantee. The limitations and calculation definitions are documented in `evaluation/README.md`.
